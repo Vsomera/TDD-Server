@@ -25,6 +25,7 @@ func (p *PlayerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GET
 func (p *PlayerServer) showScore(w http.ResponseWriter, r *http.Request) {
 	player := strings.TrimPrefix(r.URL.Path, "/players/")
 
@@ -37,6 +38,7 @@ func (p *PlayerServer) showScore(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, score)
 }
 
+// POST
 func (p *PlayerServer) processWin(w http.ResponseWriter, r *http.Request) {
 	player := strings.TrimPrefix(r.URL.Path, "/players/")
 
@@ -45,30 +47,9 @@ func (p *PlayerServer) processWin(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusAccepted)
 }
 
-type InMemoryPlayerStore struct {
-	scores   map[string]int
-	winCalls []string
-}
-
-func (i *InMemoryPlayerStore) GetPlayerScore(name string) int {
-	return i.scores[name]
-}
-
-func (i *InMemoryPlayerStore) RecordWin(name string) {
-	i.winCalls = append(i.winCalls, name)
-	i.scores[name] += 1
-}
-
 func main() {
-	store := InMemoryPlayerStore{
-		scores: map[string]int{
-			"Bob":    10,
-			"Robert": 20,
-		},
-		winCalls: nil,
-	}
-
-	server := &PlayerServer{&store}
+	store := NewInMemoryPlayerStore()
+	server := &PlayerServer{store}
 
 	log.Fatal(http.ListenAndServe(":5000", server))
 }

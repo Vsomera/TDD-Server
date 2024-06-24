@@ -1,0 +1,17 @@
+version: '1.0'
+services:
+  db:
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_USER: ${PSQL_USER}
+      POSTGRES_PASSWORD: ${PSQL_PASSWORD}
+      POSTGRES_DB: ${PSQL_DBNAME}
+      PGDATA: /data/postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - db:/data/postgres
+      - ./scripts:/docker-entrypoint-initdb.d
+
+volumes:
+  db:

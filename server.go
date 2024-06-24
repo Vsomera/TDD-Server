@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"http-server/storage"
 	"log"
 	"net/http"
 	"strings"
@@ -9,7 +10,7 @@ import (
 
 type PlayerStore interface {
 	GetPlayerScore(name string) int
-	RecordWin(name string)
+	RecordWin(name string) error
 }
 
 type PlayerServer struct {
@@ -42,14 +43,17 @@ func (p *PlayerServer) showScore(w http.ResponseWriter, r *http.Request) {
 func (p *PlayerServer) processWin(w http.ResponseWriter, r *http.Request) {
 	player := strings.TrimPrefix(r.URL.Path, "/players/")
 
-	p.store.RecordWin(player)
+	err := p.store.RecordWin(player)
 
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 	w.WriteHeader(http.StatusAccepted)
 }
 
 func main() {
-	store := NewInMemoryPlayerStore()
-	server := &PlayerServer{store}
+	store := storage.NewPostgresPlayerStore()
+	server := &PlayerServer{store: store}
 
 	log.Fatal(http.ListenAndServe(":5000", server))
 }

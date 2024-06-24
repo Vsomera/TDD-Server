@@ -1,4 +1,4 @@
-package main
+package storage
 
 type InMemoryPlayerStore struct {
 	store map[string]int
@@ -11,8 +11,9 @@ func NewInMemoryPlayerStore() *InMemoryPlayerStore {
 	}
 }
 
-func (i *InMemoryPlayerStore) RecordWin(name string) {
+func (i *InMemoryPlayerStore) RecordWin(name string) error {
 	i.store[name]++
+	return nil
 }
 
 func (i *InMemoryPlayerStore) GetPlayerScore(name string) int {

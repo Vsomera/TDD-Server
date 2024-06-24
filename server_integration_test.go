@@ -1,12 +1,13 @@
 package main
 
 import (
+	"http-server/storage"
 	"net/http/httptest"
 	"testing"
 )
 
 func TestRecordingWinsAndRetrievingThem(t *testing.T) {
-	store := NewInMemoryPlayerStore()
+	store := storage.NewInMemoryPlayerStore()
 	server := PlayerServer{store}
 	player := "Pepper"
 

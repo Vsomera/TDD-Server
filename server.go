@@ -14,21 +14,38 @@ type PlayerStore interface {
 }
 
 type PlayerServer struct {
-	store PlayerStore
+	store  PlayerStore
+	router *http.ServeMux
+}
+
+func NewPlayerServer(store PlayerStore) *PlayerServer {
+	p := &PlayerServer{
+		store:  store,
+		router: http.NewServeMux(),
+	}
+
+	p.router.Handle("/players/", http.HandlerFunc(p.PlayerHandler))
+
+	return p
 }
 
 func (p *PlayerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	p.router.ServeHTTP(w, r)
+}
+
+func (p *PlayerServer) PlayerHandler(w http.ResponseWriter, r *http.Request) {
+	player := strings.TrimPrefix(r.URL.Path, "/players/")
+
 	switch r.Method {
 	case http.MethodPost:
-		p.processWin(w, r)
+		p.processWin(w, player)
 	case http.MethodGet:
-		p.showScore(w, r)
+		p.showScore(w, player)
 	}
 }
 
 // GET
-func (p *PlayerServer) showScore(w http.ResponseWriter, r *http.Request) {
-	player := strings.TrimPrefix(r.URL.Path, "/players/")
+func (p *PlayerServer) showScore(w http.ResponseWriter, player string) {
 
 	score := p.store.GetPlayerScore(player)
 
@@ -40,20 +57,20 @@ func (p *PlayerServer) showScore(w http.ResponseWriter, r *http.Request) {
 }
 
 // POST
-func (p *PlayerServer) processWin(w http.ResponseWriter, r *http.Request) {
-	player := strings.TrimPrefix(r.URL.Path, "/players/")
+func (p *PlayerServer) processWin(w http.ResponseWriter, player string) {
 
 	err := p.store.RecordWin(player)
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusAccepted)
 	}
-	w.WriteHeader(http.StatusAccepted)
 }
 
 func main() {
 	store := storage.NewPostgresPlayerStore()
-	server := &PlayerServer{store: store}
+	server := NewPlayerServer(store)
 
 	log.Fatal(http.ListenAndServe(":5000", server))
 }

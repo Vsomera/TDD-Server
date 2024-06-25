@@ -10,7 +10,7 @@ import (
 func TestGETPlayersPsql(t *testing.T) {
 
 	store := storage.NewPostgresPlayerStore()
-	server := PlayerServer{store: store}
+	server := NewPlayerServer(store)
 
 	t.Run("get a player that does not exist", func(t *testing.T) {
 
@@ -28,7 +28,7 @@ func TestGETPlayersPsql(t *testing.T) {
 func TestPOSTPlayersPsql(t *testing.T) {
 
 	store := storage.NewPostgresPlayerStore()
-	server := PlayerServer{store: store}
+	server := NewPlayerServer(store)
 
 	t.Run("records a win on post", func(t *testing.T) {
 		player := "Pepper"

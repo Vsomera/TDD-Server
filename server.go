@@ -14,24 +14,32 @@ type PlayerStore interface {
 }
 
 type PlayerServer struct {
-	store PlayerStore
+	store  PlayerStore
+	router *http.ServeMux
+}
+
+// constructor function for player server, does 1 time setup for creating the router
+func NewPlayerServer(store PlayerStore) *PlayerServer {
+	p := &PlayerServer{
+		store:  store,
+		router: http.NewServeMux(),
+	}
+
+	p.router.Handle("/league", http.HandlerFunc(p.LeagueHandler))
+	p.router.Handle("/players/", http.HandlerFunc(p.PlayerHandler))
+
+	return p
 }
 
 func (p *PlayerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-
-	router := http.NewServeMux()
-
-	router.Handle("/league", http.HandlerFunc(p.LeagueHandler))
-
-	router.Handle("/players/", http.HandlerFunc(p.PlayerHandler))
-
-	router.ServeHTTP(w, r)
+	p.router.ServeHTTP(w, r)
 }
 
 func (p *PlayerServer) LeagueHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// processes player requests and redirects to designated methods
 func (p *PlayerServer) PlayerHandler(w http.ResponseWriter, r *http.Request) {
 	player := strings.TrimPrefix(r.URL.Path, "/players/")
 
@@ -62,7 +70,7 @@ func (p *PlayerServer) processWin(w http.ResponseWriter, player string) {
 
 func main() {
 	store := storage.NewInMemoryPlayerStore()
-	server := &PlayerServer{store}
+	server := NewPlayerServer(store)
 
 	log.Fatal(http.ListenAndServe(":5000", server))
 }

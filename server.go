@@ -1,16 +1,22 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"http-server/storage"
 	"log"
 	"net/http"
 	"strings"
 )
 
+type Player struct {
+	Name string
+	Wins int
+}
+
 type PlayerStore interface {
 	GetPlayerScore(name string) int
 	RecordWin(name string)
+	GetLeague() []Player
 }
 
 type PlayerServer struct {
@@ -36,7 +42,11 @@ func (p *PlayerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *PlayerServer) LeagueHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
+	switch r.Method {
+	case http.MethodGet:
+		json.NewEncoder(w).Encode(p.getLeagueTable())
+		w.WriteHeader(http.StatusOK)
+	}
 }
 
 // processes player requests and redirects to designated methods
@@ -62,6 +72,10 @@ func (p *PlayerServer) showScore(w http.ResponseWriter, player string) {
 	fmt.Fprint(w, score)
 }
 
+func (p *PlayerServer) getLeagueTable() []Player {
+	return p.store.GetLeague()
+}
+
 // POST
 func (p *PlayerServer) processWin(w http.ResponseWriter, player string) {
 	p.store.RecordWin(player)
@@ -69,7 +83,7 @@ func (p *PlayerServer) processWin(w http.ResponseWriter, player string) {
 }
 
 func main() {
-	store := storage.NewInMemoryPlayerStore()
+	store := NewInMemoryPlayerStore()
 	server := NewPlayerServer(store)
 
 	log.Fatal(http.ListenAndServe(":5000", server))

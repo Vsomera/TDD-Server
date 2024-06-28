@@ -24,6 +24,8 @@ type PlayerServer struct {
 	router *http.ServeMux
 }
 
+const jsonContentType = "application/json"
+
 // constructor function for player server, does 1 time setup for creating the router
 func NewPlayerServer(store PlayerStore) *PlayerServer {
 	p := &PlayerServer{
@@ -44,6 +46,7 @@ func (p *PlayerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (p *PlayerServer) LeagueHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
+		// w.Header().Set("content-type", jsonContentType)
 		json.NewEncoder(w).Encode(p.getLeagueTable())
 		w.WriteHeader(http.StatusOK)
 	}

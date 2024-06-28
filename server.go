@@ -46,7 +46,7 @@ func (p *PlayerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (p *PlayerServer) LeagueHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		// w.Header().Set("content-type", jsonContentType)
+		w.Header().Set("content-type", jsonContentType)
 		json.NewEncoder(w).Encode(p.getLeagueTable())
 		w.WriteHeader(http.StatusOK)
 	}

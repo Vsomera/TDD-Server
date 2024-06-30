@@ -3,7 +3,6 @@ package main
 type InMemoryPlayerStore struct {
 	store    map[string]int
 	winCalls []string
-	league   []Player
 }
 
 // CONSTRUCTOR
@@ -23,5 +22,9 @@ func (i *InMemoryPlayerStore) GetPlayerScore(name string) int {
 }
 
 func (i *InMemoryPlayerStore) GetLeague() []Player {
-	return i.league
+	var league []Player
+	for name, wins := range i.store {
+		league = append(league, Player{name, wins})
+	}
+	return league
 }

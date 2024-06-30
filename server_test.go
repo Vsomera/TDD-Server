@@ -29,7 +29,11 @@ func (s *StubPlayerStore) RecordWin(name string) {
 }
 
 func (s *StubPlayerStore) GetLeague() []Player {
-	return s.league
+	var league []Player
+	for name, wins := range s.scores {
+		league = append(league, Player{name, wins})
+	}
+	return league
 }
 
 func TestGETPlayers(t *testing.T) {
@@ -108,7 +112,7 @@ func TestLeague(t *testing.T) {
 		store := StubPlayerStore{}
 		server := NewPlayerServer(&store)
 
-		request := newLeagueRequest()
+		request := newGetLeagueRequest()
 		response := httptest.NewRecorder()
 
 		server.ServeHTTP(response, request)
@@ -139,7 +143,7 @@ func TestLeague(t *testing.T) {
 		}
 		server := NewPlayerServer(&store)
 
-		request := newLeagueRequest()
+		request := newGetLeagueRequest()
 		response := httptest.NewRecorder()
 
 		server.ServeHTTP(response, request)
@@ -157,7 +161,7 @@ func assertContentType(t testing.TB, response *httptest.ResponseRecorder) {
 	}
 }
 
-func newLeagueRequest() *http.Request {
+func newGetLeagueRequest() *http.Request {
 	req, _ := http.NewRequest(http.MethodGet, "/league", nil)
 	return req
 }

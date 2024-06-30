@@ -29,11 +29,7 @@ func (s *StubPlayerStore) RecordWin(name string) {
 }
 
 func (s *StubPlayerStore) GetLeague() []Player {
-	var league []Player
-	for name, wins := range s.scores {
-		league = append(league, Player{name, wins})
-	}
-	return league
+	return s.league
 }
 
 func TestGETPlayers(t *testing.T) {

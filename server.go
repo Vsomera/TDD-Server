@@ -48,13 +48,13 @@ func (p *PlayerServer) LeagueHandler(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		w.Header().Set("content-type", jsonContentType)
 		json.NewEncoder(w).Encode(p.getLeagueTable())
-		w.WriteHeader(http.StatusOK)
 	}
 }
 
 // processes player requests and redirects to designated methods
 func (p *PlayerServer) PlayerHandler(w http.ResponseWriter, r *http.Request) {
 	player := strings.TrimPrefix(r.URL.Path, "/players/")
+	w.Header().Set("content-type", jsonContentType)
 
 	switch r.Method {
 	case http.MethodPost:

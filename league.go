@@ -8,6 +8,7 @@ import (
 
 type League []Player
 
+// converts league to json with a pointer to the reader
 func NewLeague(rdr io.Reader) ([]Player, error) {
 	var league []Player
 	err := json.NewDecoder(rdr).Decode(&league)

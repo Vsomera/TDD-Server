@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 )
@@ -16,7 +15,7 @@ type Player struct {
 type PlayerStore interface {
 	GetPlayerScore(name string) int
 	RecordWin(name string)
-	GetLeague() []Player
+	GetLeague() League
 }
 
 type PlayerServer struct {
@@ -83,11 +82,4 @@ func (p *PlayerServer) getLeagueTable() []Player {
 func (p *PlayerServer) processWin(w http.ResponseWriter, player string) {
 	p.store.RecordWin(player)
 	w.WriteHeader(http.StatusAccepted)
-}
-
-func main() {
-	store := NewInMemoryPlayerStore()
-	server := NewPlayerServer(store)
-
-	log.Fatal(http.ListenAndServe(":5000", server))
 }
